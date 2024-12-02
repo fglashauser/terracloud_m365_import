@@ -1,0 +1,48 @@
+{
+    "doctype": "DocType",
+    "name": "Terracloud Import Log",
+    "module": "Terracloud M365 Import",
+    "custom": 0,
+    "istable": 0,
+    "fields": [
+     {
+      "fieldname": "timestamp",
+      "fieldtype": "Datetime",
+      "label": "Timestamp",
+      "reqd": 1
+     },
+     {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "\nErfolgreich\nFehler\nNeutral",
+      "reqd": 1
+     },
+     {
+      "fieldname": "entry",
+      "fieldtype": "Data",
+      "label": "Betroffener Eintrag"
+     },
+     {
+      "fieldname": "error_reason",
+      "fieldtype": "Text",
+      "label": "Fehlergrund"
+     },
+     {
+      "fieldname": "terracloud_import",
+      "fieldtype": "Link",
+      "label": "Terracloud Import",
+      "options": "Terracloud Import"
+     }
+    ],
+    "permissions": [
+     {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+     }
+    ]
+   }
+   

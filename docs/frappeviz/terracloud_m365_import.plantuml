@@ -1,0 +1,23 @@
+@startuml
+package terracloud_m365_import.terracloud_m365_import <<Folder>> {
+  class "Terracloud Import" {
+    csv_file : Attach
+  }
+
+"Terracloud Import" *-- "Terracloud Import Log": terracloud_import
+  class "Terracloud Import Log" {
+    timestamp : Datetime
+    status : Select
+    entry : Data
+    error_reason : Text
+    terracloud_import : Link
+  }
+
+"Mode of Payment" *-- "Terracloud Import Settings": mode_of_payment
+  class "Terracloud Import Settings" {
+    invoice_title : Data
+    mode_of_payment : Link
+    follow_calendar_months : Check
+  }
+}
+@enduml

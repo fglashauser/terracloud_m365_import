@@ -1,0 +1,79 @@
+{
+ "actions": [],
+ "creation": "2024-11-26 12:02:24.663851",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "invoice_title",
+  "mode_of_payment",
+  "price_list",
+  "follow_calendar_months",
+  "generate_new_invoices_past_due_date",
+  "submit_generated_invoices",
+  "sales_tax_template"
+ ],
+ "fields": [
+  {
+   "fieldname": "invoice_title",
+   "fieldtype": "Data",
+   "label": "Invoice Title"
+  },
+  {
+   "fieldname": "mode_of_payment",
+   "fieldtype": "Link",
+   "label": "Mode of Payment",
+   "options": "Mode of Payment"
+  },
+  {
+   "default": "0",
+   "fieldname": "follow_calendar_months",
+   "fieldtype": "Check",
+   "label": "Follow Calendar Months"
+  },
+  {
+   "fieldname": "price_list",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Price List",
+   "options": "Price List",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "generate_new_invoices_past_due_date",
+   "fieldtype": "Check",
+   "label": "Generate New Invoices Past Due Date"
+  },
+  {
+   "default": "0",
+   "fieldname": "submit_generated_invoices",
+   "fieldtype": "Check",
+   "label": "Submit Generated Invoices"
+  },
+  {
+   "fieldname": "sales_tax_template",
+   "fieldtype": "Link",
+   "label": "Sales Taxes and Charges Template",
+   "options": "Sales Taxes and Charges Template"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-12-01 21:00:05.402573",
+ "modified_by": "Administrator",
+ "module": "Terracloud M365 Import",
+ "name": "Terracloud Import Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,25 @@
+{
+    "doctype": "DocType",
+    "name": "Terracloud Import",
+    "module": "Terracloud M365 Import",
+    "custom": 0,
+    "istable": 0,
+    "fields": [
+     {
+      "fieldname": "csv_file",
+      "fieldtype": "Attach",
+      "label": "CSV-Datei",
+      "reqd": 1
+     }
+    ],
+    "permissions": [
+     {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+     }
+    ]
+   }
+   

@@ -4,6 +4,19 @@ app_publisher = "PC-Giga"
 app_description = "Importiert Terracloud Bestellungen nach ERPNext"
 app_email = "info@pc-giga.de"
 app_license = "mit"
+
+fixtures = [
+    {
+        "dt": "Custom Field",
+        "filters": [
+            {
+                "module": "Terracloud M365 Import"
+            }
+        ]
+    }
+]
+
+
 # required_apps = []
 
 # Includes in <head>
