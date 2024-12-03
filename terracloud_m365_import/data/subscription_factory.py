@@ -44,7 +44,7 @@ class SubscriptionFactory(FactoryBase):
         for order in orders:
             order.map_subscription(subscription)
             subscription.append('plans', {
-                'plan': order.subscription_plan,
+                'plan': order.subscription_plan.name,
                 'qty': order.quantity
             })
 

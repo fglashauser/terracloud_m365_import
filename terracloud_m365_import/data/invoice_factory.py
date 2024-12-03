@@ -20,6 +20,9 @@ class InvoiceFactory(FactoryBase):
             from_date (date): Das Startdatum des Abrechnungszeitraums.
             to_date (date): Das Enddatum des Abrechnungszeitraums.
         '''
+        if order.subscription_plan.seller_orderno == 'B2024072100055':
+            dummy = 123
+
         # Rechnung erstellen
         invoice = frappe.new_doc('Sales Invoice')
         invoice.title = order.subscription.invoice_title
@@ -37,11 +40,16 @@ class InvoiceFactory(FactoryBase):
         invoice.append('items', {
             'item_code': item.name,
             'item_name': item.item_name,
-            'description': self._update_item_description(item.description),
+            'description': self._update_item_description(item.description, from_date, to_date),
             'qty': order.quantity,
             'uom': item.stock_uom,
             'rate': self.get_unit_price(order, from_date, to_date)
         })
+
+        # Rechnung speichern
+        invoice.insert()
+        frappe.db.commit()
+        return invoice
 
     def get_unit_price(self, order: Order, from_date: date, to_date: date) -> float | None:
         '''
@@ -56,10 +64,12 @@ class InvoiceFactory(FactoryBase):
             float: Der Preis für die Bestellung im gegebenen Zeitraum. None, falls kein Preis gefunden wurde.
         '''
         # Feststellen, ob ein ganzer Preis oder anteiliger berechnet werden muss
-        if order.price_type == PriceType.MONTHLY and to_date == from_date + relativedelta(months=1):
+        if order.price_type == PriceType.MONTHLY and to_date == from_date + relativedelta(months=1, days=-1):
             bill_full_price = True
-        elif order.price_type == PriceType.YEARLY and to_date == from_date + relativedelta(years=1):
+        elif order.price_type == PriceType.YEARLY and to_date == from_date + relativedelta(years=1, days=-1):
             bill_full_price = True
+        else:
+            bill_full_price = False
 
         # Preis pro Stück berechnen
         unit_price = self._get_full_unit_price(order, from_date) if bill_full_price \
@@ -134,8 +144,20 @@ class InvoiceFactory(FactoryBase):
         # Kein Kundenpreis gefunden -> Allgemeinen Preis suchen
         filters.pop('customer')
         price = frappe.get_value('Item Price', filters, 'price_list_rate')
-
-        return price
+        if price:
+            return price
+        
+        # Nicht in Gültigkeitszeitraum -> Start-Datum entfernen
+        filters.pop('valid_from')
+        price = frappe.get_value('Item Price', filters, 'price_list_rate')
+        if price:
+            return price
+        
+        # Nicht in Gültigkeitszeitraum -> End-Datum entfernen
+        filters.pop('valid_upto')
+        price = frappe.get_value('Item Price', filters, 'price_list_rate')
+        if price:
+            return price
     
     def _update_item_description(self, description: str, from_date: date, to_date: date) -> str:
         '''

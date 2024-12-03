@@ -6,6 +6,8 @@ from terracloud_m365_import.data.subscription_plan_factory import SubscriptionPl
 from terracloud_m365_import.data.subscription_factory import SubscriptionFactory
 from terracloud_m365_import.data.invoice_factory import InvoiceFactory
 from terracloud_m365_import.logger import Logger
+from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta
 
 class OrderImporter:
     '''
@@ -65,9 +67,12 @@ class OrderImporter:
             self._process_yearly_orders(customer_no, self.order_factory.get_yearly_orders(orders))
             self._process_monthly_orders(customer_no, self.order_factory.get_monthly_orders(orders))
 
-        # TODO: Verpasste Rechnungen erstellen
+            # Verpasste Rechnungen erstellen
+            for order in orders:
+                self._create_missed_invoices(order)
 
-    def _process_yearly_orders(self, customer_no: str, orders: list[dict]):
+
+    def _process_yearly_orders(self, customer_no: str, orders: list[dict]) -> None:
         '''
         Verarbeitet jährliche Bestellungen eines Kunden.
         Erstellt für jede Bestellung eine eigene Subscription.
@@ -80,8 +85,7 @@ class OrderImporter:
         for order in orders:
             self.subscription_factory.create_subscription(customer_no, PriceType.YEARLY, [order])
 
-
-    def _process_monthly_orders(self, customer_no: str, orders: list[Order]):
+    def _process_monthly_orders(self, customer_no: str, orders: list[Order]) -> None:
         '''
         Verarbeitet monatliche Bestellungen eines Kunden.
         Fasst die Bestellungen pro Kunde zusammen und erstellt eine Subscription
@@ -100,3 +104,46 @@ class OrderImporter:
         else:
             # Bestehende Subscription aktualisieren
             self.subscription_factory.append_to_existing_subscription(subscription, orders)
+
+    def _create_missed_invoices(self, order: Order) -> None:
+        '''
+        Erstellt verpasste Rechnungen für eine Bestellung.
+        Erstellt anteilige und ganze Rechnungen für den Zeitraum zwischen Bestelldatum und Abo-Startdatum.
+
+        Args:
+            order (Order): Die Bestellung.
+
+        Raises:
+            ValueError: Falls die Bestellung oder Subscription nicht gefunden wurde
+        '''
+        if not order or not order.subscription:
+            raise ValueError('Can\'t create missing invoices. Order or Subscription not found')
+
+        # Das Startdatum der Bestellung ist das Startdatum der ersten Rechnnung
+        start_date = order.start_date
+
+        # Die Rechnungserzeugung soll bis zum Abo-Startdatum erfolgen
+        end_date = order.subscription.current_invoice_start
+
+        current_start = start_date
+        while current_start < end_date:
+
+            # End-Datum der aktuellen Rechnung anhand Abrechnungs-Intervall bestimmen
+            if order.price_type == PriceType.MONTHLY:
+                current_end = current_start + relativedelta(months=1)
+            elif order.price_type == PriceType.YEARLY:
+                current_end = current_start + relativedelta(years=1)
+            else:
+                break
+
+            # End-Datum beschneiden falls es das Abo-Startdatum überschreitet
+            current_end = min(current_end, end_date)
+
+            # Es soll nur der Leistungs-Zeitraum betrachtet werden: 1 Tag abziehen
+            current_end -= relativedelta(days=1)
+
+            # Rechnung erstellen
+            self.invoice_factory.create_invoice(order, current_start, current_end)
+
+            # Nächsten Rechnungsstart bestimmen
+            current_start = current_end + relativedelta(days=1)
