@@ -18,18 +18,19 @@ class OrderFactory(FactoryBase):
 
         # Bestellungen erstellen
         for row in data:
-            order = Order(
-                customer_no=row['CustomID'],
-                order_no=row['Bestellnummer'],
-                article_no=row['Artikelnummer'],
-                quantity=float(row['Menge']),
-                start_date=datetime.strptime(row['MicrosoftSubscriptionStartDate'], '%d.%m.%Y %H:%M:%S').date(),
-                price_type=PriceType(row['Preistyp'])
-            )
-
-            # Bestellung validieren
             try:
+                order = Order(
+                    customer_no=row['CustomID'],
+                    order_no=row['Bestellnummer'],
+                    article_no=row['Artikelnummer'],
+                    quantity=float(row['Menge']),
+                    start_date=datetime.strptime(row['MicrosoftSubscriptionStartDate'], '%d.%m.%Y %H:%M:%S').date(),
+                    price_type=PriceType(row['Preistyp'])
+                )
+            
+                # Bestellung validieren
                 order.validate()
+
             except Exception as e:
                 self.logger.log_status(Status.ERROR, order.order_no, str(e))
                 continue

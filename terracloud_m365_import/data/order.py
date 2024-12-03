@@ -2,6 +2,7 @@ import frappe
 from enum import Enum
 from dataclasses import dataclass
 from datetime import date
+from frappe.model.document import Document
 
 class PriceType(Enum):
     """Die Preistypen, die in TerraCloud vorkommen."""
@@ -19,6 +20,7 @@ class Order:
     price_type: PriceType
     
     _subscription_plan: str = None
+    _subscription: str = None
 
     def validate(self) -> bool:
         """
@@ -65,7 +67,7 @@ class Order:
 
         return True
 
-    def map_subscription_plan(self, subscription_plan: str):
+    def map_subscription_plan(self, subscription_plan: Document) -> None:
         """
         Ordnet der Bestellung einen Subscription-Plan zu.
 
@@ -74,8 +76,17 @@ class Order:
         """
         self._subscription_plan = subscription_plan
 
+    def map_subscription(self, subscription: Document) -> None:
+        """
+        Ordnet der Bestellung eine Subscription zu.
+
+        Args:
+            subscription (str): Der Name der Subscription.
+        """
+        self._subscription = subscription
+
     @property
-    def subscription_plan(self) -> str:
+    def subscription_plan(self) -> Document:
         """
         Gibt den Namen des zugeordneten Subscription-Plans zurück.
 
@@ -83,3 +94,13 @@ class Order:
             str: Der Name des Subscription-Plans.
         """
         return self._subscription_plan
+    
+    @property
+    def subscription(self) -> Document:
+        """
+        Gibt den Namen der zugeordneten Subscription zurück.
+
+        Returns:
+            str: Der Name der Subscription.
+        """
+        return self._subscription

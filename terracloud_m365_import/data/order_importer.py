@@ -4,6 +4,7 @@ from terracloud_m365_import.data.order import Order, PriceType
 from terracloud_m365_import.data.order_factory import OrderFactory
 from terracloud_m365_import.data.subscription_plan_factory import SubscriptionPlanFactory
 from terracloud_m365_import.data.subscription_factory import SubscriptionFactory
+from terracloud_m365_import.data.invoice_factory import InvoiceFactory
 from terracloud_m365_import.logger import Logger
 
 class OrderImporter:
@@ -37,6 +38,7 @@ class OrderImporter:
         self.order_factory = OrderFactory(settings, self.logger)
         self.subscription_plan_factory = SubscriptionPlanFactory(settings, self.logger)
         self.subscription_factory = SubscriptionFactory(settings, self.logger)
+        self.invoice_factory = InvoiceFactory(settings, self.logger)
 
     def start_import(self):
         '''
@@ -62,6 +64,8 @@ class OrderImporter:
         for customer_no, orders in grouped_orders.items():
             self._process_yearly_orders(customer_no, self.order_factory.get_yearly_orders(orders))
             self._process_monthly_orders(customer_no, self.order_factory.get_monthly_orders(orders))
+
+        # TODO: Verpasste Rechnungen erstellen
 
     def _process_yearly_orders(self, customer_no: str, orders: list[dict]):
         '''
@@ -95,10 +99,4 @@ class OrderImporter:
             self.subscription_factory.create_subscription(customer_no, PriceType.MONTHLY, orders)
         else:
             # Bestehende Subscription aktualisieren
-            for order in orders:
-                subscription.append('plans', {
-                    'plan': order.subscription_plan,
-                    'qty': order.quantity
-                })
-            subscription.save()
-            frappe.db.commit()
+            self.subscription_factory.append_to_existing_subscription(subscription, orders)

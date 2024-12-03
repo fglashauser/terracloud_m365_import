@@ -10,7 +10,7 @@ class SubscriptionFactory(FactoryBase):
     Stellt Methoden zur Generierung von Subscription-Objekten zur Verfügung.
     '''
     
-    def create_subscription(self, customer_no: str, price_type: PriceType, orders: list[Order]):
+    def create_subscription(self, customer_no: str, price_type: PriceType, orders: list[Order]) -> None:
         '''
         Erstellt eine Subscription für einen Kunden.
         
@@ -42,6 +42,7 @@ class SubscriptionFactory(FactoryBase):
 
         # Subscription Plans hinzufügen
         for order in orders:
+            order.map_subscription(subscription)
             subscription.append('plans', {
                 'plan': order.subscription_plan,
                 'qty': order.quantity
@@ -49,6 +50,23 @@ class SubscriptionFactory(FactoryBase):
 
         # Subscription speichern
         subscription.insert()
+        frappe.db.commit()
+
+    def append_to_existing_subscription(self, subscription: Document, orders: list[Order]) -> None:
+        '''
+        Fügt Bestellungen einer existierenden Subscription hinzu.
+        
+        Args:
+            subscription (frappe.Document): Die Subscription.
+            orders (list[Order]): Die Liste der Bestellungen.
+        '''
+        for order in orders:
+            order.map_subscription(subscription)
+            subscription.append('plans', {
+                'plan': order.subscription_plan,
+                'qty': order.quantity
+            })
+        subscription.save()
         frappe.db.commit()
 
     def find_existing_monthly_subscription(self, customer_no) -> Document | None:

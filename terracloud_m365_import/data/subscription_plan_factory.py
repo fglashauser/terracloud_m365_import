@@ -34,7 +34,7 @@ class SubscriptionPlanFactory(FactoryBase):
             }).insert()
 
             # Mapping zwischen Bestellung und Subscription-Plan herstellen
-            order.map_subscription_plan(doc.name)
+            order.map_subscription_plan(doc)
             mapped_orders.append(order)
  
         frappe.db.commit()
