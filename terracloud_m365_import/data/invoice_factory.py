@@ -23,6 +23,9 @@ class InvoiceFactory(FactoryBase):
         if order.subscription_plan.seller_orderno == 'B2024072100055':
             dummy = 123
 
+        if order.customer_no == '10005':
+            dummy = 123
+
         # Rechnung erstellen
         invoice = frappe.new_doc('Sales Invoice')
         invoice.title = order.subscription.invoice_title
