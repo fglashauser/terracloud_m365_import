@@ -42,7 +42,7 @@ class OrderImporter:
         self.subscription_factory = SubscriptionFactory(settings, self.logger)
         self.invoice_factory = InvoiceFactory(settings, self.logger)
 
-    def start_import(self):
+    def start_import(self) -> None:
         '''
         Startet den Import.
         '''

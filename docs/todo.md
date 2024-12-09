@@ -1,7 +1,8 @@
 ## Subscription
 
-- **Custom-Field**: party_name (Kundenname)
+~~- **Custom-Field**: party_name (Kundenname)~~
 
 ## Subscription Plan
 
-- **Custom-Field**: item_name (Artikel-Name)
+~~- **Custom-Field**: item_name (Artikel-Name)~~
+

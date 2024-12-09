@@ -16,6 +16,11 @@ fixtures = [
     }
 ]
 
+doc_events = {
+    "Subscription": {
+        "validate": "terracloud_m365_import.terracloud_m365_import.doctype.subscription.subscription.update_party_name"
+    }
+}
 
 # required_apps = []
 
