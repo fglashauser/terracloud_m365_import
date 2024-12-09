@@ -11,22 +11,29 @@ from terracloud_m365_import.logger import Logger
 from terracloud_m365_import.data.order_importer import OrderImporter
 
 class TerracloudImport(Document):
-	pass
+    def process_import_job(self) -> None:
+        '''
+        Verarbeitet einen Terracloud-Import.
+        Liest die hochgeladene .csv-Datei aus und erstellt entsprechende Subscriptions.
+
+        Monatliche Abrechnungen werden pro Kunde zusammengefasst.
+        Jährliche Abrechnungen werden pro Bestellung erstellt.
+        '''
+        #terracloud_import = frappe.get_doc('Terracloud Import', terracloud_import_id)
+        settings = frappe.get_single('Terracloud Import Settings')
+
+        order_importer = OrderImporter(self, settings)
+        order_importer.start_import()
 
 @frappe.whitelist()
 def process_import(terracloud_import_id) -> None:
-    '''
-    Verarbeitet einen Terracloud-Import.
-    Liest die hochgeladene .csv-Datei aus und erstellt entsprechende Subscriptions.
-
-    Monatliche Abrechnungen werden pro Kunde zusammengefasst.
-    Jährliche Abrechnungen werden pro Bestellung erstellt.
-    '''
-    terracloud_import = frappe.get_doc('Terracloud Import', terracloud_import_id)
-    settings = frappe.get_single('Terracloud Import Settings')
-    
-    order_importer = OrderImporter(terracloud_import, settings)
-    order_importer.start_import()
+    frappe.enqueue_doc(
+        "Terracloud Import",
+        terracloud_import_id,
+        "process_import_job",
+        queue="long",
+        timeout=5000
+    )
 
 @frappe.whitelist()
 def delete_data() -> None:
